@@ -1,0 +1,70 @@
+version: '3.1'
+services:
+  app:
+    build:
+      dockerfile: './Dockerfile'
+      context: './es-poc'
+    container_name: dotnet
+    networks:
+      - db
+      - elastic
+    ports:
+      - 5000:5000
+      - 9222:9222
+  mongo:
+    image: 'mongo:4'
+    container_name: mongo
+    restart: always
+    networks:
+      - db
+    volumes:
+      - mongodata:/usr/share/mongo/data
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    depends_on:
+      - mongo
+    restart: always
+    ports:
+      - 8081:8081
+    networks:
+      - db
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.3.2
+    container_name: elasticsearch
+    environment:
+      - bootstrap.memory_lock=true
+      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elasticdata:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.3.2
+    container_name: kibana
+    depends_on:
+      - elasticsearch
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    networks:
+      - elastic
+    ports:
+      - '5601:5601'
+
+volumes:
+  ? elasticdata
+  ? mongodata
+
+networks:
+  ? db
+  ? elastic
