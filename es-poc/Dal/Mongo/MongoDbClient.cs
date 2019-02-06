@@ -1,30 +1,32 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace es_poc.Dal.Mongo
 {
-    public class MongoDbClient
+    public static class MongoDbClient
 {
-        private IMongoDatabase m_Database;
-        public MongoDbClient() {
-            var client = new MongoClient("mongodb://localhost");
-            m_Database = client.GetDatabase("ES-POC");
+        public static void Init() {
+            var client = new MongoClient();
+            IMongoDatabase db = client.GetDatabase("ES-POC");
 
-            // Insert value into database
-            var collection = m_Database.GetCollection<Data>("movies");
-            collection.InsertOne(new Data()
-            {
-                Id = "Move 1",
-                Movie = "The Dark Knight Rises"
-            });
+            var collection = db.GetCollection<Data>("data");
+
+            string path = Directory.GetCurrentDirectory();
+
+            Data[] list = JsonConvert.DeserializeObject<Data[]>(File.ReadAllText(String.Concat(path, @"\Dal\Mongo\data.json")));
+
+            collection.InsertMany(list);
         }
 
         private class Data
         {
-            [BsonId]
-            public string Id { get; set; }
-            [BsonElement("name")]
-            public string Movie { get; set; }
+            [BsonElement("text")]
+            public string text { get; set; }
         }
     }
 }

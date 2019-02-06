@@ -15,7 +15,7 @@ namespace es_poc
     {
         public static void Main(string[] args)
         {
-            MongoDbClient m_Mongo = new MongoDbClient();
+            MongoDbClient.Init();
             CreateWebHostBuilder(args).Build().Run();
 
         }
