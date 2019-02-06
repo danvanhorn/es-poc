@@ -17,6 +17,8 @@ services:
     restart: always
     networks:
       - db
+    ports:
+      - "27017:27017"
     volumes:
       - mongodata:/usr/share/mongo/data
     environment:

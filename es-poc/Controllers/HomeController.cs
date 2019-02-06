@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using es_poc.Models;
+using es_poc.Dal.Mongo;
 
 namespace es_poc.Controllers
 {
@@ -12,7 +13,15 @@ namespace es_poc.Controllers
     {
         public IActionResult Index()
         {
-            return View();
+          return View();
+        }
+
+        [HttpPost]
+        public IActionResult Init() {
+            MongoDbClient.Init();
+            return new ContentResult() {
+                Content = "OK"
+            };
         }
 
         public IActionResult About()
