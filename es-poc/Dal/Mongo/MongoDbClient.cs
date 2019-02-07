@@ -21,31 +21,33 @@ namespace es_poc.Dal.Mongo
         public MongoDbClient() {
             mClient = new MongoClient(mConnectionString);
             MongoCredential credential = MongoCredential.CreateCredential(mDb, mUser, mPassword);
+            //MongoClientSettings mongoCredentialSettings = new MongoClientSettings()
+            //{
+            //    Credential =  credential ,
+            //    Server = new MongoServerAddress("mongodb://localhost", 27017)
+            //};
+            //mClient = new MongoClient(mongoCredentialSettings);
         }
 
         public void Init() {
             IMongoDatabase db = mClient.GetDatabase(mDb);
-            IMongoCollection<Data> collection = db.GetCollection<Data>(mCollection);
+            IMongoCollection<BsonBinaryData> collection = db.GetCollection<BsonBinaryData>(mCollection);
 
             string path = Path.Combine(Directory.GetCurrentDirectory(), "Dal", "Mongo", "data.json");
 
-            Data[] list = JsonConvert.DeserializeObject<Data[]>(File.ReadAllText(path));
+            BsonBinaryData[] list = JsonConvert.DeserializeObject<BsonBinaryData[]>(File.ReadAllText(path));
 
             collection.InsertMany(list);
         }
 
-        public async Task Query(string id) {
+        public BsonDocument Query(string id)
+        {
             IMongoDatabase db = mClient.GetDatabase(mDb);
             IMongoCollection<BsonDocument> collection = db.GetCollection<BsonDocument>(mCollection);
-
-            //using (IAsyncCursor<BsonDocument> cursor = await collection.FindAsync(new BsonDocument("_id", BsonObjectId(id))))
-            //{
-            //    while (await cursor.MoveNextAsync())
-            //    {
-            //        IEnumerable<BsonDocument> batch = cursor.Current;
-
-            //    }
-            //}
+            
+            // We're getting a time out error here.
+            var foo = collection.Find(new BsonDocument { { "_id", new ObjectId(id) } }).FirstAsync().Result;
+            return foo;
         }
 
 

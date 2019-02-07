@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using es_poc.Models;
 using es_poc.Dal.Mongo;
+using MongoDB.Driver;
+using MongoDB.Bson;
 
 namespace es_poc.Controllers
 {
@@ -13,16 +15,46 @@ namespace es_poc.Controllers
     {
         public IActionResult Index()
         {
-          return View();
+            //x this.Init();
+            MongoDbClient client = new MongoDbClient();
+            var foo = client.Query("5c5c91bfc57088c64c04918b");
+
+            //return new ContentResult()
+            //{
+            //    Content = foo.AsString,
+            //    StatusCode = 200
+
+
+            //};
+            ViewBag["Message"] = foo.AsString;
+            ViewBag["Other"] = "It's working";
+            return View();
         }
 
         [HttpPost]
         public IActionResult Init() {
-            MongoDbClient.Init();
+            MongoDbClient client = new MongoDbClient();
+            client.Init();
             return new ContentResult() {
                 Content = "OK"
             };
         }
+
+        public IActionResult Test(string id)
+        {
+            ViewData["Message"] = "Your application description page.";
+            MongoDbClient client = new MongoDbClient();
+            var foo = client.Query(id);
+
+            return new ContentResult()
+            {
+                Content = foo.AsString,
+                StatusCode = 200
+
+
+            };
+        }
+
 
         public IActionResult About()
         {
