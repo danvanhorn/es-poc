@@ -1,11 +1,8 @@
 ﻿using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Driver;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace es_poc.Dal.Mongo
@@ -20,7 +17,10 @@ namespace es_poc.Dal.Mongo
         private const string mPassword = "example";
 
         public MongoDbClient() {
-            mClient = new MongoClient();
+            // for docker
+            mClient = new MongoClient(mConnectionString);
+            // for local
+            // mClient = new MongoClient();
             MongoCredential credential = MongoCredential.CreateCredential(mDb, mUser, mPassword);
         }
 
@@ -43,13 +43,20 @@ namespace es_poc.Dal.Mongo
             return collection.Find(new BsonDocument { { "_id", new ObjectId(id) } }).FirstAsync().Result;;
         }
 
+        public List<Data> QueryAll()
+        {
+            IMongoDatabase db = mClient.GetDatabase(mDb);
+            IMongoCollection<Data> collection = db.GetCollection<Data>(mCollection);
+
+            return collection.Find(_ => true).ToList();
+        } 
+
 
         public class Data
         {
-            //[BsonId(IdGenerator = typeof(ObjectIdGenerator))]
-            //public Guid Id { get; set; }
+
             [BsonIgnoreIfNull]
-            public ObjectId _id { get; set; }
+            public ObjectId? _id { get; set; }
 
             [BsonElement("text")]
             public string text { get; set; }

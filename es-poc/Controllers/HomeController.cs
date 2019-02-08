@@ -15,19 +15,6 @@ namespace es_poc.Controllers
     {
         public IActionResult Index()
         {
-            //x this.Init();
-            //MongoDbClient client = new MongoDbClient();
-            //var foo = client.Query("5c5c91bfc57088c64c04918b");
-
-            //return new ContentResult()
-            //{
-            //    Content = foo.AsString,
-            //    StatusCode = 200
-
-
-            //};
-            // ViewBag["Message"] = foo.AsString;
-            // ViewBag["Other"] = "It's working";
             return View();
         }
 
@@ -35,6 +22,7 @@ namespace es_poc.Controllers
         public IActionResult Init() {
             MongoDbClient client = new MongoDbClient();
             client.Init();
+
             return new ContentResult() {
                 Content = "OK"
             };
@@ -44,6 +32,7 @@ namespace es_poc.Controllers
         {
             MongoDbClient client = new MongoDbClient();
             var result = client.Query(id);
+
             return new JsonResult(result);
         }
 
