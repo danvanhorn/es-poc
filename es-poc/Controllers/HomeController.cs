@@ -16,8 +16,8 @@ namespace es_poc.Controllers
         public IActionResult Index()
         {
             //x this.Init();
-            MongoDbClient client = new MongoDbClient();
-            var foo = client.Query("5c5c91bfc57088c64c04918b");
+            //MongoDbClient client = new MongoDbClient();
+            //var foo = client.Query("5c5c91bfc57088c64c04918b");
 
             //return new ContentResult()
             //{
@@ -26,8 +26,8 @@ namespace es_poc.Controllers
 
 
             //};
-            ViewBag["Message"] = foo.AsString;
-            ViewBag["Other"] = "It's working";
+            // ViewBag["Message"] = foo.AsString;
+            // ViewBag["Other"] = "It's working";
             return View();
         }
 
@@ -40,21 +40,12 @@ namespace es_poc.Controllers
             };
         }
 
-        public IActionResult Test(string id)
+        public IActionResult Query(string id)
         {
-            ViewData["Message"] = "Your application description page.";
             MongoDbClient client = new MongoDbClient();
-            var foo = client.Query(id);
-
-            return new ContentResult()
-            {
-                Content = foo.AsString,
-                StatusCode = 200
-
-
-            };
+            var result = client.Query(id);
+            return new JsonResult(result);
         }
-
 
         public IActionResult About()
         {

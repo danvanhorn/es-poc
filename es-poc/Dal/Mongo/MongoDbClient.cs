@@ -1,11 +1,12 @@
 ﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Driver;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace es_poc.Dal.Mongo
 {
@@ -19,40 +20,37 @@ namespace es_poc.Dal.Mongo
         private const string mPassword = "example";
 
         public MongoDbClient() {
-            mClient = new MongoClient(mConnectionString);
+            mClient = new MongoClient();
             MongoCredential credential = MongoCredential.CreateCredential(mDb, mUser, mPassword);
-            //MongoClientSettings mongoCredentialSettings = new MongoClientSettings()
-            //{
-            //    Credential =  credential ,
-            //    Server = new MongoServerAddress("mongodb://localhost", 27017)
-            //};
-            //mClient = new MongoClient(mongoCredentialSettings);
         }
 
         public void Init() {
             IMongoDatabase db = mClient.GetDatabase(mDb);
-            IMongoCollection<BsonBinaryData> collection = db.GetCollection<BsonBinaryData>(mCollection);
+            IMongoCollection<Data> collection = db.GetCollection<Data>(mCollection);
 
             string path = Path.Combine(Directory.GetCurrentDirectory(), "Dal", "Mongo", "data.json");
 
-            BsonBinaryData[] list = JsonConvert.DeserializeObject<BsonBinaryData[]>(File.ReadAllText(path));
+            Data[] list = JsonConvert.DeserializeObject<Data[]>(File.ReadAllText(path));
 
             collection.InsertMany(list);
         }
 
-        public BsonDocument Query(string id)
+        public Data Query(string id)
         {
             IMongoDatabase db = mClient.GetDatabase(mDb);
-            IMongoCollection<BsonDocument> collection = db.GetCollection<BsonDocument>(mCollection);
-            
-            // We're getting a time out error here.
-            var foo = collection.Find(new BsonDocument { { "_id", new ObjectId(id) } }).FirstAsync().Result;
-            return foo;
+            IMongoCollection<Data> collection = db.GetCollection<Data>(mCollection);
+
+            return collection.Find(new BsonDocument { { "_id", new ObjectId(id) } }).FirstAsync().Result;;
         }
 
 
-        private class Data
+        public class Data
         {
+            //[BsonId(IdGenerator = typeof(ObjectIdGenerator))]
+            //public Guid Id { get; set; }
+            [BsonIgnoreIfNull]
+            public ObjectId _id { get; set; }
+
             [BsonElement("text")]
             public string text { get; set; }
         }
