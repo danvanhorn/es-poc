@@ -8,8 +8,15 @@ body {
 /* Wrapping element */
 /* Set some basic padding to keep content from hitting the edges */
 .body-content {
-    padding-left: 15px;
-    padding-right: 15px;
+    display: flex;
+    flex-direction: column;
+    margin: 15px;
+}
+
+.search-results {
+    display: flex;
+    flex-flow: column nowrap;
+    margin-bottom: 10px;
 }
 
 /* Carousel */

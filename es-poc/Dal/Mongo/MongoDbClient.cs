@@ -1,13 +1,16 @@
-﻿using MongoDB.Bson;
+﻿using es_poc.Dal.Entities;
+using es_poc.Models;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
 namespace es_poc.Dal.Mongo
 {
-    public class MongoDbClient
+    public class MongoDbClient : IDisposable
     {
         private static IMongoClient mClient;
         private const string mDb = "es-poc";
@@ -18,14 +21,19 @@ namespace es_poc.Dal.Mongo
 
         public MongoDbClient() {
             // for docker
-            mClient = new MongoClient(mConnectionString);
+            // mClient = new MongoClient(mConnectionString);
             // for local
-            // mClient = new MongoClient();
+            mClient = new MongoClient();
             MongoCredential credential = MongoCredential.CreateCredential(mDb, mUser, mPassword);
         }
 
         public void Init() {
             IMongoDatabase db = mClient.GetDatabase(mDb);
+
+            if (db.GetCollection<Data>(mCollection) != null) {
+                db.DropCollection(mCollection);
+            }
+
             IMongoCollection<Data> collection = db.GetCollection<Data>(mCollection);
 
             string path = Path.Combine(Directory.GetCurrentDirectory(), "Dal", "Mongo", "data.json");
@@ -35,12 +43,12 @@ namespace es_poc.Dal.Mongo
             collection.InsertMany(list);
         }
 
-        public Data Query(string id)
+        public List<Data> Query(string id)
         {
             IMongoDatabase db = mClient.GetDatabase(mDb);
             IMongoCollection<Data> collection = db.GetCollection<Data>(mCollection);
 
-            return collection.Find(new BsonDocument { { "_id", new ObjectId(id) } }).FirstAsync().Result;;
+            return collection.Find(new BsonDocument { { "_id", new ObjectId(id) } }).ToList();
         }
 
         public List<Data> QueryAll()
@@ -49,17 +57,11 @@ namespace es_poc.Dal.Mongo
             IMongoCollection<Data> collection = db.GetCollection<Data>(mCollection);
 
             return collection.Find(_ => true).ToList();
-        } 
+        }
 
-
-        public class Data
+        public void Dispose()
         {
-
-            [BsonIgnoreIfNull]
-            public ObjectId? _id { get; set; }
-
-            [BsonElement("text")]
-            public string text { get; set; }
+            // throw new NotImplementedException();
         }
     }
 }
