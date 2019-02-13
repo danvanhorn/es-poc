@@ -1,0 +1,14 @@
+version: '3.4'
+
+services:
+  es-poc:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:443
+      - ASPNETCORE_HTTPS_PORT=44342
+    ports:
+      - "64932:80"
+      - "44342:443"
+    volumes:
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro

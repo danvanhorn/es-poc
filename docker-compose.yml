@@ -1,6 +1,6 @@
-version: '3.1'
+version: '3.4'
 services:
-  app:
+  es-poc:
     build:
       dockerfile: './Dockerfile'
       context: './es-poc'
@@ -8,9 +8,6 @@ services:
     networks:
       - db
       - elastic
-    ports:
-      - 5000:5000
-      - 9222:9222
   mongo:
     image: 'mongo:4'
     container_name: mongo
