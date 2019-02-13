@@ -20,10 +20,7 @@ namespace es_poc.Dal.Mongo
         private const string mPassword = "example";
 
         public MongoDbClient() {
-            // for docker
-            // mClient = new MongoClient(mConnectionString);
-            // for local
-            mClient = new MongoClient();
+            mClient = new MongoClient(mConnectionString);
             MongoCredential credential = MongoCredential.CreateCredential(mDb, mUser, mPassword);
         }
 
