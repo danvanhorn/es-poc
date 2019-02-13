@@ -4,10 +4,12 @@ services:
     build:
       dockerfile: './Dockerfile'
       context: './es-poc'
-    container_name: dotnet
+    container_name: es-poc
     networks:
       - db
       - elastic
+    ports:
+      - "5000:5000"
   mongo:
     image: 'mongo:4'
     container_name: mongo
