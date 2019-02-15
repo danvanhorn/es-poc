@@ -1,0 +1,9 @@
+﻿@model es_poc.Models.SearchResultViewModel
+
+<div class="search-results">
+    @Html.LabelFor(model => model.text)
+    @Html.DisplayFor(model => model.text)
+    @Html.ActionLink("View Details", "Details", "Home", new { id = Model._id })
+    <!---TODO: add markup for images--->
+</div>
+

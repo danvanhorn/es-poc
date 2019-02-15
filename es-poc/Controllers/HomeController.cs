@@ -5,6 +5,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using es_poc.Models;
+using es_poc.Dal.Mongo;
+using MongoDB.Driver;
+using MongoDB.Bson;
+using es_poc.Dal.ElasticSearch;
+using es_poc.Dal.Entities;
 
 namespace es_poc.Controllers
 {
@@ -12,7 +17,39 @@ namespace es_poc.Controllers
     {
         public IActionResult Index()
         {
-            return View();
+            SearchModel model = new SearchModel();
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult Init() {
+            MongoDbClient dbClient = new MongoDbClient();
+            ElasticSearchClient esClient = new ElasticSearchClient();
+            dbClient.Init();
+            esClient.Index();
+            return new ContentResult() {
+                Content = "OK"
+            };
+        }
+
+        public IActionResult Search(SearchModel search)
+        {
+            if (search.query != null)
+            {
+                ElasticSearchClient esClient = new ElasticSearchClient();
+                search.models = esClient.Search(search.query).Select(x => (SearchResultViewModel)x).ToList();
+            }
+            return View("Index", search);
+        }
+
+        public IActionResult Details(string id) {
+            MongoDbClient dbClient = new MongoDbClient();
+     
+            var result = dbClient.Query(id)
+                .Select(x => (SearchDetailsViewModel)x)
+                .ToList();
+
+            return View("SearchDetailsViewModel", result.FirstOrDefault());
         }
 
         public IActionResult About()

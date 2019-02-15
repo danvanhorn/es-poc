@@ -1,6 +1,23 @@
-﻿@{
+﻿@model es_poc.Models.SearchModel
+
+@{
     ViewData["Title"] = "Home Page";
 }
+
+<div class="body">
+    <div class="body-content">
+        @using (Html. BeginForm("Search", "Home", FormMethod.Post))
+        {
+            @Html.TextBoxFor(model => model.query, new { placeholder = "Search..."})
+            <button id="search-button" type="submit">Search</button>
+        }
+    </div>
+    @if (this.Model.models != null) {
+        foreach (SearchResultViewModel m in this.Model.models) {
+            <partial name="SearchResultViewModel" model="m"/>
+        }
+    }
+</div>
 
 
 
