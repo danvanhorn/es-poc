@@ -12,11 +12,12 @@ namespace es_poc.Dal.ElasticSearch
     public class ElasticSearchClient
     {
         private ElasticClient mClient;
-        private const string mIndexName = "data";
+        private const string mIndexName = "searchdata";
 
         public ElasticSearchClient()
         {
-            var settings = new ConnectionSettings()
+            Uri uri = new Uri("http://elasticsearch:9200");
+            var settings = new ConnectionSettings(uri)
                 .DisableDirectStreaming()
                 .DefaultIndex(mIndexName)
                 .DefaultMappingFor<SearchData>(i => i
@@ -27,12 +28,24 @@ namespace es_poc.Dal.ElasticSearch
             mClient = new ElasticClient(settings);
         }
 
+        public void CreateIndex()
+        {
+            mClient.CreateIndex(mIndexName, i => i
+                .Mappings(ms => ms
+                    .Map<SearchData>(m => m.AutoMap()
+                    )
+                )
+            );
+        }
+
         public void Index()
         {
             mClient.DeleteIndex(mIndexName);
+            CreateIndex();
+
             using (MongoDbClient client = new MongoDbClient())
             {
-                IList<Data> docs = client.QueryAll();
+                IList<SearchData> docs = client.QueryAll().Cast<SearchData>().ToList();
                 foreach (Data data in docs)
                 {
                     var indexResponse = mClient.IndexDocument((SearchData)data);

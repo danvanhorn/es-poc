@@ -32,13 +32,13 @@ namespace es_poc.Controllers
             };
         }
 
-        [HttpPost]
         public IActionResult Search(SearchModel search)
         {
-            ElasticSearchClient esClient = new ElasticSearchClient();
-
-            search.models = esClient.Search(search.query).Select(x => (SearchResultViewModel)x).ToList();
-
+            if (search.query != null)
+            {
+                ElasticSearchClient esClient = new ElasticSearchClient();
+                search.models = esClient.Search(search.query).Select(x => (SearchResultViewModel)x).ToList();
+            }
             return View("Index", search);
         }
 
