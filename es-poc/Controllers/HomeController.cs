@@ -10,6 +10,7 @@ using MongoDB.Driver;
 using MongoDB.Bson;
 using es_poc.Dal.ElasticSearch;
 using es_poc.Dal.Entities;
+using es_poc.Dal.Azure;
 
 namespace es_poc.Controllers
 {
@@ -25,8 +26,12 @@ namespace es_poc.Controllers
         public IActionResult Init() {
             MongoDbClient dbClient = new MongoDbClient();
             ElasticSearchClient esClient = new ElasticSearchClient();
+            AzureClient aClient = new AzureClient();
+
             dbClient.Init();
             esClient.Index();
+            aClient.Init();
+
             return new ContentResult() {
                 Content = "OK"
             };
@@ -34,6 +39,9 @@ namespace es_poc.Controllers
 
         public IActionResult Search(SearchModel search)
         {
+            AzureClient aClient = new AzureClient();
+            aClient.getBlobData();
+
             if (search.query != null)
             {
                 ElasticSearchClient esClient = new ElasticSearchClient();

@@ -64,10 +64,10 @@ services:
   azurite:
     image: 'arafato/azurite'
     container_name: azurite
+    volumes:
+     - es-poc/azurite/folder:opt/azurite/folder
     ports:
      - '10000:10000'
-     - '10001:10001'
-     - '10002:10002'
 
 volumes:
   ? elasticdata
