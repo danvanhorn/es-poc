@@ -8,6 +8,7 @@ services:
     networks:
       - db
       - elastic
+      - azure
     ports:
       - "5000:5000"
   mongo:
@@ -65,14 +66,19 @@ services:
     image: 'arafato/azurite'
     container_name: azurite
     volumes:
-     - es-poc/azurite/folder:opt/azurite/folder
+     - azurite:/opts/azurite/folder
     ports:
      - '10000:10000'
+    networks:
+     - azure
+
 
 volumes:
   ? elasticdata
   ? mongodata
+  ? azurite
 
 networks:
   ? db
   ? elastic
+  ? azure
