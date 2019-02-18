@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
+using System.IO;
 
 namespace es_poc.Dal.Azure
 {
@@ -40,9 +41,7 @@ namespace es_poc.Dal.Azure
                         PublicAccess = BlobContainerPublicAccessType.Blob
                     };
                     await mContainer.SetPermissionsAsync(permissions);
-
-                    CloudBlockBlob blob = mContainer.GetBlockBlobReference("helloworld.txt");
-                    await blob.UploadTextAsync("Hello, World!");
+                    uploadImages();
                 };
             } catch (Exception e)
             {
@@ -50,18 +49,30 @@ namespace es_poc.Dal.Azure
             }
         }
 
-        public void getText(IAsyncResult result)
+        public void uploadImages()
         {
-            // string str = (string) result.;
-            Console.WriteLine("In the callback result");
+            string[] imagePaths = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), "..", "Images"));
+            foreach(string imagePath in imagePaths)
+            {
+                try {
+                    CloudBlockBlob blob = mContainer.GetBlockBlobReference(Path.GetFileName(imagePath));
+                    using (Stream file = File.OpenRead(imagePath))
+                    {
+                        blob.UploadFromStream(file);
+                        Console.WriteLine("inserted {0}", file);
+                    }
+                } catch(Exception e)
+                {
+                    Console.WriteLine("Error returned from the service: {0}", e.Message);
+                }
+            }
         }
 
-        public void getBlobData()
+        public void getBlobData(string filename)
         {
-            CloudBlockBlob blob = mContainer.GetBlockBlobReference("helloworld.txt");
-            AsyncCallback callback = new AsyncCallback(getText);
-            string foo = blob.DownloadText();
-            blob.BeginDownloadText(callback, new object());
+            CloudBlockBlob blob = mContainer.GetBlockBlobReference(filename);
+            Stream stream = null;
+            blob.DownloadToStream(stream);
         }
     }
 }

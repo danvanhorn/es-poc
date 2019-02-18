@@ -23,25 +23,23 @@ namespace es_poc.Controllers
         }
 
         [HttpPost]
-        public IActionResult Init() {
+        public async Task<IActionResult> Init() {
             MongoDbClient dbClient = new MongoDbClient();
             ElasticSearchClient esClient = new ElasticSearchClient();
             AzureClient aClient = new AzureClient();
 
             dbClient.Init();
             esClient.Index();
-            aClient.Init();
+            await aClient.Init();
 
-            return new ContentResult() {
-                Content = "OK"
+            return new ContentResult()
+            {
+                Content = "Ok"
             };
         }
 
         public IActionResult Search(SearchModel search)
         {
-            AzureClient aClient = new AzureClient();
-            aClient.getBlobData();
-
             if (search.query != null)
             {
                 ElasticSearchClient esClient = new ElasticSearchClient();
@@ -49,6 +47,11 @@ namespace es_poc.Controllers
             }
             return View("Index", search);
         }
+
+        //public IActionResult GetImage(string filename)
+        //{
+
+        //}
 
         public IActionResult Details(string id) {
             MongoDbClient dbClient = new MongoDbClient();

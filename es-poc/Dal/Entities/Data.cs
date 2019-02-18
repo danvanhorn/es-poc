@@ -6,9 +6,12 @@ using System.Threading.Tasks;
 
 namespace es_poc.Dal.Entities
 {
-    public class Data : SearchData 
+    public class Data : SearchData
     {
         [BsonElement("additionalProperty")]
         public int additionalProperty { get; set; }
+
+        [BsonElement("imageFilename")]
+        public string imageFilename { get; set; }
     }
 }
