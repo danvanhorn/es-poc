@@ -32,6 +32,10 @@ namespace es_poc.Dal.Azure
 
         public async Task Init() {
             try {
+
+                CloudBlobClient mClient = mAcct.CreateCloudBlobClient();
+                mContainer = mClient.GetContainerReference(mContainerName);
+
                 mContainer = mClient.GetContainerReference(mContainerName);
                 if (await mContainer.CreateIfNotExistsAsync()) {
                     Console.WriteLine("Created container '{0}'", mContainer.Name);
@@ -68,11 +72,44 @@ namespace es_poc.Dal.Azure
             }
         }
 
-        public void getBlobData(string filename)
+        public async Task<List<string>> ListBlobsInContainer()
+        {
+            List<string> uris = new List<string>();
+            // List the blobs in the container.
+            Console.WriteLine("List blobs in container.");
+            BlobContinuationToken blobContinuationToken = null;
+            do
+            {
+                var results = await mContainer.ListBlobsSegmentedAsync(null, blobContinuationToken);
+                // Get the value of the continuation token returned by the listing call.
+                blobContinuationToken = results.ContinuationToken;
+                foreach (IListBlobItem item in results.Results)
+                {
+                    uris.Add(item.Uri.ToString());
+                    Console.WriteLine(item.Uri);
+                }
+            } while (blobContinuationToken != null); // Loop while the continuation token is not null. 
+            return uris;
+        }
+
+        public async Task getBlobDataAsync(string filename)
         {
             CloudBlockBlob blob = mContainer.GetBlockBlobReference(filename);
-            Stream stream = null;
-            blob.DownloadToStream(stream);
+            ////Stream stream = null;
+            //FileMode f = FileMode.OpenOrCreate;
+            //blob.DownloadToFile(filename, f);
+            //blob.xv(stream);
+
+            try
+            {
+                string destinationFile = filename.Replace(".jpg", "_DOWNLOADED.jpg");
+                await blob.DownloadToFileAsync(destinationFile, FileMode.OpenOrCreate);
+            }
+
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
     }
 }

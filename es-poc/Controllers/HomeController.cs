@@ -63,6 +63,14 @@ namespace es_poc.Controllers
             return View("SearchDetailsViewModel", result.FirstOrDefault());
         }
 
+        public async Task<IActionResult> getBlobAsync()
+        {
+            AzureClient aClient = new AzureClient();
+
+            await aClient.getBlobDataAsync("1.jpg");
+            return View("Index");
+        }
+
         public IActionResult About()
         {
             ViewData["Message"] = "Your application description page.";
