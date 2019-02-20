@@ -9,6 +9,7 @@
 <div>
     <h4>SearchDetailsViewModel</h4>
     <hr />
+    <img src='@Url.RouteUrl(new { action = "GetImage", controller = "Home", filename = Model.imageFilename })' />
     <dl class="dl-horizontal">
         <dt>
             @Html.DisplayNameFor(model => model.additionalProperty)

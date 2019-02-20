@@ -7,10 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using es_poc.Models;
 using es_poc.Dal.Mongo;
 using MongoDB.Driver;
-using MongoDB.Bson;
 using es_poc.Dal.ElasticSearch;
-using es_poc.Dal.Entities;
 using es_poc.Dal.Azure;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace es_poc.Controllers
 {
@@ -27,7 +26,7 @@ namespace es_poc.Controllers
             MongoDbClient dbClient = new MongoDbClient();
             ElasticSearchClient esClient = new ElasticSearchClient();
             AzureClient aClient = new AzureClient();
-
+            
             dbClient.Init();
             esClient.Index();
             await aClient.Init();
@@ -48,10 +47,20 @@ namespace es_poc.Controllers
             return View("Index", search);
         }
 
-        //public IActionResult GetImage(string filename)
-        //{
-
-        //}
+        public IActionResult GetImage(string filename)
+        {
+            using (AzureClient client = new AzureClient()) {
+                if(!String.Equals(filename, String.Empty))
+                {
+                    var image = client.getBlobData(filename);
+                }
+            };
+           
+            return new ContentResult()
+            {
+                Content = "Ok"
+            };
+        }
 
         public IActionResult Details(string id) {
             MongoDbClient dbClient = new MongoDbClient();

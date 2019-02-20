@@ -10,7 +10,7 @@ using System.IO;
 
 namespace es_poc.Dal.Azure
 {
-    public class AzureClient
+    public class AzureClient : IDisposable
     {
         private static string mStorageAcctName = "devstoreaccount1";
         private static string mStorageAcctKey = "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==";
@@ -33,17 +33,17 @@ namespace es_poc.Dal.Azure
         public async Task Init() {
             try {
                 mContainer = mClient.GetContainerReference(mContainerName);
-                if (await mContainer.CreateIfNotExistsAsync()) {
-                    Console.WriteLine("Created container '{0}'", mContainer.Name);
+                await mContainer.CreateIfNotExistsAsync();
+                Console.WriteLine("Created container '{0}'", mContainer.Name);
 
-                    BlobContainerPermissions permissions = new BlobContainerPermissions
-                    {
-                        PublicAccess = BlobContainerPublicAccessType.Blob
-                    };
-                    await mContainer.SetPermissionsAsync(permissions);
-                    uploadImages();
+                BlobContainerPermissions permissions = new BlobContainerPermissions
+                {
+                    PublicAccess = BlobContainerPublicAccessType.Blob
                 };
-            } catch (Exception e)
+                await mContainer.SetPermissionsAsync(permissions);
+                uploadImages();
+            }
+            catch (Exception e)
             {
                 Console.WriteLine("Error returned from the service: {0}", e.Message);
             }
@@ -51,28 +51,37 @@ namespace es_poc.Dal.Azure
 
         public void uploadImages()
         {
-            string[] imagePaths = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), "..", "Images"));
-            foreach(string imagePath in imagePaths)
+            string[] imagePaths = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), "Images"));
+
+            foreach (string imagePath in imagePaths)
             {
-                try {
+                try
+                {
                     CloudBlockBlob blob = mContainer.GetBlockBlobReference(Path.GetFileName(imagePath));
                     using (Stream file = File.OpenRead(imagePath))
                     {
                         blob.UploadFromStream(file);
-                        Console.WriteLine("inserted {0}", file);
+                        Console.WriteLine("inserted {0}", Path.GetFileName(imagePath));
                     }
-                } catch(Exception e)
+                }
+                catch (Exception e)
                 {
                     Console.WriteLine("Error returned from the service: {0}", e.Message);
                 }
             }
         }
 
-        public void getBlobData(string filename)
+        public Stream getBlobData(string filename)
         {
             CloudBlockBlob blob = mContainer.GetBlockBlobReference(filename);
             Stream stream = null;
             blob.DownloadToStream(stream);
+            return stream;
+        }
+
+        void IDisposable.Dispose()
+        {
+            // throw new NotImplementedException();
         }
     }
 }
