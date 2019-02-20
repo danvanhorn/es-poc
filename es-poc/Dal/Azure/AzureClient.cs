@@ -32,10 +32,6 @@ namespace es_poc.Dal.Azure
 
         public async Task Init() {
             try {
-
-                CloudBlobClient mClient = mAcct.CreateCloudBlobClient();
-                mContainer = mClient.GetContainerReference(mContainerName);
-
                 mContainer = mClient.GetContainerReference(mContainerName);
                 await mContainer.CreateIfNotExistsAsync();
                 Console.WriteLine("Created container '{0}'", mContainer.Name);
@@ -78,9 +74,7 @@ namespace es_poc.Dal.Azure
         public Stream getBlobData(string filename)
         {
             CloudBlockBlob blob = mContainer.GetBlockBlobReference(filename);
-            Stream stream = null;
-            blob.DownloadToStream(stream);
-            return stream;
+            return blob.OpenRead();    
         }
 
         void IDisposable.Dispose()

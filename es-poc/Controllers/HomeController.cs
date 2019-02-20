@@ -10,6 +10,7 @@ using MongoDB.Driver;
 using es_poc.Dal.ElasticSearch;
 using es_poc.Dal.Azure;
 using static System.Net.Mime.MediaTypeNames;
+using System.IO;
 
 namespace es_poc.Controllers
 {
@@ -49,17 +50,15 @@ namespace es_poc.Controllers
 
         public IActionResult GetImage(string filename)
         {
+            FileStreamResult image = null;
             using (AzureClient client = new AzureClient()) {
-                if(!String.Equals(filename, String.Empty))
+                if(!string.Equals(filename, string.Empty))
                 {
-                    var image = client.getBlobData(filename);
+                    image = File(client.getBlobData(filename), "image/jpeg");
                 }
             };
-           
-            return new ContentResult()
-            {
-                Content = "Ok"
-            };
+
+            return image;
         }
 
         public IActionResult Details(string id) {
