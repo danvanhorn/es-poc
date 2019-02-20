@@ -32,6 +32,10 @@ namespace es_poc.Dal.Azure
 
         public async Task Init() {
             try {
+
+                CloudBlobClient mClient = mAcct.CreateCloudBlobClient();
+                mContainer = mClient.GetContainerReference(mContainerName);
+
                 mContainer = mClient.GetContainerReference(mContainerName);
                 await mContainer.CreateIfNotExistsAsync();
                 Console.WriteLine("Created container '{0}'", mContainer.Name);
