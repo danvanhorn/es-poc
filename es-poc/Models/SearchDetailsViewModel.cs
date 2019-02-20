@@ -10,14 +10,17 @@ namespace es_poc.Models
 {
     public int additionalProperty { get; set; }
 
-    public SearchDetailsViewModel(string _id, string text, int additionalProperty) : base(_id, text)
+    public string imageFilename { get; set; }
+
+    public SearchDetailsViewModel(string _id, string text, int additionalProperty, string imageFilename) : base(_id, text)
     {
         this.additionalProperty = additionalProperty;
+        this.imageFilename = imageFilename;
     }
 
     public static explicit operator SearchDetailsViewModel(Data v)
     {
-        return new SearchDetailsViewModel(v._id, v.text, v.additionalProperty);
+        return new SearchDetailsViewModel(v._id, v.text, v.additionalProperty, v.imageFilename);
     }
 }
 }

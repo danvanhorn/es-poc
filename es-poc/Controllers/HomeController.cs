@@ -7,9 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using es_poc.Models;
 using es_poc.Dal.Mongo;
 using MongoDB.Driver;
-using MongoDB.Bson;
 using es_poc.Dal.ElasticSearch;
-using es_poc.Dal.Entities;
+using es_poc.Dal.Azure;
+using static System.Net.Mime.MediaTypeNames;
+using System.IO;
 
 namespace es_poc.Controllers
 {
@@ -22,13 +23,18 @@ namespace es_poc.Controllers
         }
 
         [HttpPost]
-        public IActionResult Init() {
+        public async Task<IActionResult> Init() {
             MongoDbClient dbClient = new MongoDbClient();
             ElasticSearchClient esClient = new ElasticSearchClient();
+            AzureClient aClient = new AzureClient();
+            
             dbClient.Init();
             esClient.Index();
-            return new ContentResult() {
-                Content = "OK"
+            await aClient.Init();
+
+            return new ContentResult()
+            {
+                Content = "Ok"
             };
         }
 
@@ -40,6 +46,19 @@ namespace es_poc.Controllers
                 search.models = esClient.Search(search.query).Select(x => (SearchResultViewModel)x).ToList();
             }
             return View("Index", search);
+        }
+
+        public IActionResult GetImage(string filename)
+        {
+            FileStreamResult image = null;
+            using (AzureClient client = new AzureClient()) {
+                if(!string.Equals(filename, string.Empty))
+                {
+                    image = File(client.getBlobData(filename), "image/jpeg");
+                }
+            };
+
+            return image;
         }
 
         public IActionResult Details(string id) {
